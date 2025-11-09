@@ -162,7 +162,7 @@ async def generate_ply(
     print(f"Background removal time: {time6 - time5} seconds")
 
 
-    url1 = "https://localhost:8000/sketch2trellis/picture23d/"
+    url1 = "http://localhost:8000/sketch2trellis/picture23d/"
     with open("./mid_output/masked_output.png", 'rb') as f:
         files = {'file': ('mid_output.png', f, 'image/png')}
         mid_response = requests.post(url1, files=files)
@@ -173,6 +173,7 @@ async def generate_ply(
             f.write(mid_response.content)
         time7 = time.time()
         print(f"3D model generation time: {time7 - time6} seconds")
+        print(f"3D model generation time: {time7 - time1} seconds")
         return FileResponse(glb_path, media_type='application/octet-stream', filename="sample.glb")
     else:
         return {"error": f"3D generation failed: {mid_response.status_code}"}
