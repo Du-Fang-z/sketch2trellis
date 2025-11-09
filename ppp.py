@@ -132,7 +132,7 @@ def get_mask_image(image_path, mask_path):
     # 加载模型并移动到 GPU
     sam_checkpoint = "./sam_vit_h_4b8939.pth"
     model_type = "vit_h"
-    sam = sam_model_registry[model_type]("sam_checkpoint")  # ✅ 使用 GPU
+    sam = sam_model_registry[model_type](sam_checkpoint)  # ✅ 使用 GPU
     predictor = SamPredictor(sam)
 
     # 加载图像
