@@ -125,6 +125,8 @@ import io
 import torch
 from segment_anything import sam_model_registry, SamPredictor
 import random
+import gc
+import os
 
 # 计算 alpha 区域的中心点和半径
 def compute_center_radius(image_bytes):
@@ -214,4 +216,10 @@ def run_segmentation(overlay_path, original_path, sam_checkpoint="sam_vit_h_4b89
     with open("./mid_output/segmented_result.png", "wb") as f:
         f.write(result_image.read())
     print("分割结果已保存为 segmented_result.png")
+    
+    del predictor
+    del sam
+    gc.collect()
+    torch.cuda.empty_cache()
+
  
