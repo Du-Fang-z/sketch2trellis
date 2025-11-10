@@ -231,5 +231,9 @@ def run_segmentation(overlay_path, original_path, sam_checkpoint="sam_vit_h_4b89
         f.write(result_image.read())
     print("分割结果已保存为 segmented_result.png")
     
+    del predictor
+    del sam
+    gc.collect()
+    torch.cuda.empty_cache()
 
  
