@@ -128,6 +128,12 @@ import random
 import gc
 import os
 
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+sam = sam_model_registry[model_type](sam_checkpoint)
+sam.to(device)
+predictor = SamPredictor(sam)
+
 # 计算 alpha 区域的中心点和半径
 def compute_center_radius(image_bytes):
     image = Image.open(io.BytesIO(image_bytes)).convert("RGBA")
@@ -183,10 +189,10 @@ def run_segmentation(overlay_path, original_path, sam_checkpoint="sam_vit_h_4b89
     with open(original_path, "rb") as f:
         original_bytes = f.read()
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    sam = sam_model_registry[model_type](sam_checkpoint)
-    sam.to(device)
-    predictor = SamPredictor(sam)
+    # device = "cuda" if torch.cuda.is_available() else "cpu"
+    # sam = sam_model_registry[model_type](sam_checkpoint)
+    # sam.to(device)
+    # predictor = SamPredictor(sam)
 
     center, radius, alpha_mask = compute_center_radius(overlay_bytes)
     if center is None:
