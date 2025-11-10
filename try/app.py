@@ -172,12 +172,15 @@ def run_segmentation(overlay_path, original_path, sam_checkpoint="./sam_vit_h_4b
         overlay_bytes = f.read()
     with open(original_path, "rb") as f:
         original_bytes = f.read()
+    
+    time3 = time.time()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     sam = sam_model_registry[model_type](sam_checkpoint)
     sam.to(device)
     predictor = SamPredictor(sam)
-
+    time4 = time.time()
+    print(f"SAM model loaded in {time4 - time3:.2f} seconds.")
     center, radius, alpha_mask = compute_center_radius(overlay_bytes)
     if center is None:
         raise ValueError("overlay_image 中没有 alpha <= 250 的区域")
