@@ -62,6 +62,11 @@ def save_base64_image(base64_str, output_path):
     img = Image.open(io.BytesIO(img_data))
     img.save(output_path)
 
+def save_overlay_image(overlay_bytes, output_path="saved_overlay.png"):
+    image = Image.open(io.BytesIO(overlay_bytes)).convert("RGBA")
+    image.save(output_path, format="PNG")
+    print(f"Overlay image saved to {output_path} with alpha channel preserved.")
+
 @app.post("/generate_ply/")
 async def generate_ply(
     original_image: UploadFile = File(...),
@@ -122,48 +127,21 @@ async def generate_ply(
     os.makedirs("mid_output", exist_ok=True)
     mid_output_path = "./mid_output/mid_output.png"
     save_base64_image(result_base64, mid_output_path)
+    save_overlay_image(overlay_bytes, "./mid_output/overlay_image.png")
     # mid_latent_path = "./mid_output/mid_latent.png"
     # save_base64_image(latent_base64, mid_latent_path)
 
     time4 = time.time()
     print(f"Image saving time: {time4 - time3} seconds")
-
-    # 处理透明图层
-    new_image = Image.open(mid_output_path)
-    overlay_image_pil = Image.open(io.BytesIO(overlay_bytes)).convert("RGBA")
-    overlay_image_pil = processing_image(overlay_image_pil)
-    overlay_alpha = overlay_image_pil.split()[-1]
-    overlay_alpha = overlay_alpha.filter(ImageFilter.MinFilter(13))
-
-
-    for y in range(new_image.size[1]):
-        for x in range(new_image.size[0]):
-            alpha = overlay_alpha.getpixel((x, y))
-            if alpha != 0:
-                new_image.putpixel((x, y), (255, 255, 255, 255))
-
-    mid_mask_path = "./mid_output/mid_mask.png"
-    new_image.save(mid_mask_path)
-
     time5 = time.time()
-    print(f"Transparency processing time: {time5 - time4} seconds") 
-
-    with open("./mid_output/mid_mask.png", "rb") as input_file:
-        input_data = input_file.read()
-    session = new_session("u2net")
-    output_data = remove(input_data, session=session)
-    output_image = Image.open(io.BytesIO(output_data))
-    output_image.save("./mid_output/mid_mask_no_bg.png")
-    ppp.get_mask_image("./mid_output/mid_output.png","./mid_output/mid_mask_no_bg.png")
-    ppp.crop_nontransparent_region("./mid_output/masked_output_test.png", "./mid_output/masked_output.png")
-
+    ppp.run_segmentation("./mid_output/overlay_image.png","./mid_output/mid_output.png")
     # 请求 3D 模型生成接口
     time6 = time.time()
     print(f"Background removal time: {time6 - time5} seconds")
 
 
     url1 = "http://localhost:8000/sketch2trellis/picture23d/"
-    with open("./mid_output/masked_output.png", 'rb') as f:
+    with open("./mid_output/segmented_result.png", 'rb') as f:
         files = {'file': ('mid_output.png', f, 'image/png')}
         mid_response = requests.post(url1, files=files)
     
