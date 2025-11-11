@@ -146,13 +146,15 @@ async def generate_ply(
         mid_response = requests.post(url1, files=files)
     
     if mid_response.status_code == 200:
-        glb_path = "./mid_output/sample.glb"
+        # glb_path = "./mid_output/sample.glb"
+        glb_path = "./mid_output/sample.mp4"
         with open(glb_path, "wb") as f:
             f.write(mid_response.content)
         time7 = time.time()
         print(f"3D model generation time: {time7 - time6} seconds")
         print(f"3D model generation time: {time7 - time1} seconds")
-        return FileResponse(glb_path, media_type='application/octet-stream', filename="sample.glb")
+        # return FileResponse(glb_path, media_type='application/octet-stream', filename="sample.glb")
+        return FileResponse(glb_path, media_type='video/mp4', filename="sample.mp4")
     else:
         return {"error": f"3D generation failed: {mid_response.status_code}"}
 
