@@ -140,7 +140,7 @@ async def generate_ply(
     print(f"Background removal time: {time6 - time5} seconds")
 
 
-    url1 = "http://localhost:8000/sketch2trellis/picture23d/"
+    url1 = "http://localhost:8000/sketch2trellis/video"
     with open("./mid_output/segmented_result.png", 'rb') as f:
         files = {'file': ('mid_output.png', f, 'image/png')}
         mid_response = requests.post(url1, files=files)
