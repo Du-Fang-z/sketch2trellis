@@ -134,8 +134,8 @@ sam_checkpoint = "sam_vit_h_4b8939.pth"
 model_type = "vit_h"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 sam = sam_model_registry[model_type](sam_checkpoint)
-sam.to("cpu")
-# predictor = SamPredictor(sam)
+sam.to(device)
+predictor = SamPredictor(sam)
 
 
 # 计算 alpha 区域的中心点和半径
@@ -187,7 +187,7 @@ def apply_mask(image_bytes, final_mask):
     return output
 
 # 本地调用函数
-def run_segmentation(overlay_path, original_path, sam_checkpoint="sam_vit_h_4b8939.pth", model_type="vit_h", sam=sam):
+def run_segmentation(overlay_path, original_path, sam_checkpoint="sam_vit_h_4b8939.pth", model_type="vit_h"):
     with open(overlay_path, "rb") as f:
         overlay_bytes = f.read()
     with open(original_path, "rb") as f:
@@ -197,8 +197,6 @@ def run_segmentation(overlay_path, original_path, sam_checkpoint="sam_vit_h_4b89
     # sam = sam_model_registry[model_type](sam_checkpoint)
     # sam.to(device)
     # predictor = SamPredictor(sam)
-    sam.to(device)
-    predictor = SamPredictor(sam)
 
     center, radius, alpha_mask = compute_center_radius(overlay_bytes)
     if center is None:
@@ -229,11 +227,6 @@ def run_segmentation(overlay_path, original_path, sam_checkpoint="sam_vit_h_4b89
         f.write(result_image.read())
     print("分割结果已保存为 segmented_result.png")
     
-
-    sam.to("cpu")
-    del predictor
-    gc.collect()
-    torch.cuda.empty_cache()
 
 
  
