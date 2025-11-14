@@ -5,7 +5,7 @@ import numpy as np
 from io import BytesIO
 
 # 加载模型
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 model, preprocess = clip.load("ViT-B/32", device=device)
 
 
